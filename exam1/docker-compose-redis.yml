@@ -1,0 +1,12 @@
+services:
+  redis:
+    container_name: redis
+    image: redis:7.4.1
+    networks:
+      - tulip-net
+    ports:
+      - "6379:6379"
+
+networks:
+  tulip-net:
+    external: true

@@ -1,0 +1,14 @@
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8.4.3
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+    networks:
+      - tulip-net
+    ports:
+      - "3306:3306"
+
+networks:
+  tulip-net:
+    external: true

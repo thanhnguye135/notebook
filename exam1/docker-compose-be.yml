@@ -1,0 +1,17 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    networks:
+      - tulip-net
+    ports:
+      - "8386:8386"
+
+networks:
+  tulip-net:
+    external: true
