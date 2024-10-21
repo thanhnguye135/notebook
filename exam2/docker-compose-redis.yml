@@ -3,10 +3,9 @@ services:
     container_name: redis_container
     image: redis:7.4.1
     networks:
-      - tulip-net
+      - redis-net
     ports:
       - "6379:6379"
 
 networks:
-  tulip-net:
-    external: true
+  redis-net:
