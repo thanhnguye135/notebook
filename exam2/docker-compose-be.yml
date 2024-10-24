@@ -6,22 +6,17 @@ services:
       dockerfile: Dockerfile
     networks:
       - be-net
-      - exam2_mysql-net
-      - exam2_redis-net
     environment:
-      - MYSQL_HOST=mysql
-      - REDIS_HOST=redis
+      - MYSQL_HOST=192.168.88.217
+      - REDIS_HOST=192.168.88.217
       - MYSQL_ROOT_PASSWORD=admin123
       - MYSQL_USER=thanhng
       - MYSQL_PASSWORD=qwerty
       - MYSQL_DATABASE=docker_db
       - MYSQL_DEFAULT_AUTHENTICATION_PLUGIN=mysql_native_password
+      - MYSQL_TCP_PORT=3308
     ports:
       - "8386:8386"
 
 networks:
   be-net:
-  exam2_mysql-net:
-    external: true
-  exam2_redis-net:
-    external: true

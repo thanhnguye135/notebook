@@ -14,20 +14,42 @@ redisClient
   .then(() => console.log("CONNECTED TO REDIS"))
   .catch((err) => console.error("Redis connection error: ", err));
 
-const mysqlConnection = mysql.createConnection({
+console.log(process.env.MYSQL_TCP_PORT);
+
+// const mysqlConnection = mysql.createConnection({
+//   host: process.env.MYSQL_HOST,
+//   port: process.env.MYSQL_TCP_PORT,
+//   user: process.env.MYSQL_USER,
+//   password: process.env.MYSQL_PASSWORD,
+//   database: process.env.MYSQL_DATABASE,
+// });
+
+// mysqlConnection.on("connect", () => {
+//   console.log("CONNECTED TO MYSQL");
+// });
+
+// mysqlConnection.on("error", (error) => {
+//   console.log("Mysql connection error", error);
+// });
+
+const pool = mysql.createPool({
   host: process.env.MYSQL_HOST,
-  port: 3306,
+  port: process.env.MYSQL_TCP_PORT,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-mysqlConnection.on("connect", () => {
-  console.log("CONNECTED TO MYSQL");
-});
-
-mysqlConnection.on("error", (error) => {
-  console.log("Mysql connection error", error);
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error("Error connecting to MySQL: ", err);
+  } else {
+    console.log("Connected to MySQL with connection pool");
+    connection.release();
+  }
 });
 
 app.post("/set", async (req, res) => {

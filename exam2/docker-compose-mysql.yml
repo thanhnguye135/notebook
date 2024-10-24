@@ -8,10 +8,13 @@ services:
       - MYSQL_PASSWORD=qwerty
       - MYSQL_DATABASE=docker_db
       - MYSQL_DEFAULT_AUTHENTICATION_PLUGIN=mysql_native_password
+      - MYSQL_TCP_PORT=3308
     networks:
       - mysql-net
     ports:
-      - "3306:3306"
+      - "3308:3306"
+    expose:
+      - 3306
 
 networks:
   mysql-net:
