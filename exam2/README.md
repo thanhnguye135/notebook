@@ -80,3 +80,125 @@ Khi tất cả các service được định nghĩa trong cùng một file Docke
 
 - Việc expose port là cần thiết khi muốn cho phép các container bên ngoài truy cập vào dịch vụ của container thông qua host's port.
 - Nếu chỉ giao tiếp giữa các container trong cùng một mạng, không cần phải expose ports.
+
+---
+
+## What is DNS? | How DNS works (Traditional Network)
+
+- DNS translate domain names => IP addresses => browsers can load internet resources
+- DNS resolution: converting a hostname (www.example.com) => IP address (192.168.1.1)
+- DNS servers: DNS recursor, Root nameserver, TLD nameserver, Auhtoritative nameserver
+
+**1. DNS recursor(recursive resolver)**
+
+- a server receive queries from client machines
+- the recursive resolver will cache information received from authoritative nameservers
+- IP address of a domain name that was recently requested => the resolver just deliver the client the record from cache => without communicate with the nameservers
+
+**2. Root nameserver**
+
+- receive queries from DNS recursor => then directing to TLD nameserver based on top-level domain(.com, .net, etc)
+
+**3. TLD nameserver**
+
+- maintains information for all the domain name share a common domain extension (.com, .net, etc)
+- directing to Authoritative nameserver
+
+**4. Authoritative nameserver**
+
+- contains information specific to the domain name
+- provide DNS recursor IP address if it has access to the requested record
+
+**5. The 8 steps in a DNS lookup**
+
+1. User types "www.example.com" into web browser => query travels into the Internet => DNS recursive resolver
+
+2. DNS recursor => query to Root nameserver
+
+3. Root namserver => respond to the DNS recursor top-level domain (.com)
+
+4. DNS recursor => .com TLD nameserver
+
+5. TLD nameserver => respond IP address of the domain's nameserver, example.com to the DNS recursor
+
+6. DNS recursor => query to the domain's nameserver
+
+7. The domain's nameserver => respond IP address for "example.com" to DNS recursor
+
+8. DNS recursor => responds to web browser with IP address
+
+## What is ISP?
+
+- ISP (Internet Service Provider) : an Internet Access Provider or an online service provider
+- Types of ISP Connections
+  - DSL
+  - WiFi broadband
+  - mobile broadband
+  - fibre optic broadband
+  - cable broadband
+
+> Without an ISP, sitting on the Internet is impossible, that mainly connects to this vast network of interconnected computers and servers => makes the Internet
+
+## Packet filtering and firewalls
+
+- On Linux, Docker creates `iptables` and `ip6tables` rules (just for bridge network) to implement network isolation, port publishing and filtering. => SHOULD NOT modify the rules
+- When running Docker on a host exposed to the internet => SHOULD add iptables policies => PREVENT unauthorized access to containers
+
+**1. Docker and iptables chains**
+
+**2. Port publishing and mapping**
+
+- By default, the daemon blocks access to ports that have not been published (both IPv4, IPv6)
+- To do this, uses iptables to perform NAT, PAT, and masquerading
+
+## User-defined networks
+
+I. Network drivers
+
+1. Bridge
+
+   > User-defined bridge networks are superior to the default `bridge` network
+
+- User-defined bridges vs Default bridge:
+  - User-defined bridges provide automatic DNS resolution between containers => containers can resolve each other by name or alias
+  - Containers on Default bridge only access each other by IP addresses
+  - Each User-defined network creates a configurable bridge (default bridge => containers use same settings, happen outside Docker | user-defined => containers use different settings)
+  - Linked containers on the default bridge network share environment variables
+
+2. Host
+
+   > Containers does not have its own IP address with `host` mode, port mapping doesn't take effect, and -p, -P are ignored
+
+   > Removes network isolation between the container and the Docker host, effectively allowing the container to use the host’s networking directly.
+
+- Host mode useful
+  - optimize performance
+  - containers needs to handle a large range of ports
+
+## Processing DNS resolution
+
+> When a container is started, its name and IP address are registered with the DNS server
+
+### Step 1: Automatic DNS entries
+
+1. Docker automatically creates DNS entries when containers are created => ensure all containers in the network can be resolved by name
+2. These entries are dynamically updated as container lifecycle
+
+### Step 2: DNS query
+
+1. Container A (serA) need communicate with container B (serB)
+2. Container A sends a DNS query for serB to resolve its IP address
+
+### Step 3: Docker Network Interceptor
+
+1. Docker network include an embedded DNS server => intercepts DNS queries from containers
+2. Embedded DNS server maintains the mappings of container names to IP addresses
+
+### Step 4: DNS resolution
+
+1. Embedded DNS server looks up the name serB in its internal database
+2. The DNS server retrieves IP address associated with serB (container B)
+
+### Step 5: Response to Container A
+
+1. DNS server sends resolved IP address of serB (container B) => container A => establish direct connection between containers
